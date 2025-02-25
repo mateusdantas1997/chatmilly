@@ -311,7 +311,7 @@ class WhatsAppBot {
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio1.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio1.aac', { sendAudioAsVoice: true });
 
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
@@ -341,7 +341,7 @@ class WhatsAppBot {
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio4.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio4.aac', { sendAudioAsVoice: true });
 
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_promise');
     }
@@ -386,11 +386,11 @@ class WhatsAppBot {
         await delay(20000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio6.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio6.aac', { sendAudioAsVoice: true });
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio7.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio7.aac', { sendAudioAsVoice: true });
         await delay(5000);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
@@ -407,7 +407,7 @@ class WhatsAppBot {
 
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio8.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio8.aac', { sendAudioAsVoice: true });
 
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
@@ -416,7 +416,7 @@ class WhatsAppBot {
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio9.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio9.aac', { sendAudioAsVoice: true });
 
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
@@ -459,7 +459,7 @@ class WhatsAppBot {
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio12.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio12.aac', { sendAudioAsVoice: true });
 
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
@@ -493,15 +493,15 @@ class WhatsAppBot {
 
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio10.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio10.aac', { sendAudioAsVoice: true });
 
         await delay(5000);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/foto.jpg', { sendMediaAsPhoto: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './foto.jpg', { sendMediaAsPhoto: true });
 
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio11.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio11.aac', { sendAudioAsVoice: true });
 
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
@@ -535,7 +535,7 @@ class WhatsAppBot {
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './media/audio13.aac', { sendAudioAsVoice: true });
+        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio13.aac', { sendAudioAsVoice: true });
 
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
