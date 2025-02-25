@@ -137,7 +137,8 @@ class WhatsAppBot {
                 '/usr/bin/chromium-browser',
                 '/usr/bin/chromium',
                 '/snap/bin/google-chrome',
-                '/opt/google/chrome/google-chrome'
+                '/opt/google/chrome/google-chrome',
+                '/root/Projects/chatmilly/chrome-linux/chrome'
             ]
         };
         const possiveisCaminhos = caminhos[plataforma] || [];
