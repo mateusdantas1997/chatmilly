@@ -507,7 +507,7 @@ class WhatsAppBot {
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
-        await this.client.sendMessage(msg.from, '💦bit.ly/PagarPIX 👈🏼🥰');
+        await this.client.sendMessage(msg.from, '💦bit.ly/PagarPixx 👈🏼🥰');
         this.logger.info('Link enviado.');
 
         await delay(config.delays.digitacao);
