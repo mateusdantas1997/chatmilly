@@ -498,15 +498,6 @@ class WhatsAppBot {
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, '💦bit.ly/PagarPixx 👈🏼🥰');
         this.logger.info('Link enviado.');
-        await delay(config.delays.digitacao);
-        await chat.sendStateTyping();
-        await delay(config.delays.digitacao);
-        await this.client.sendMessage(msg.from, 'MINHA CHAVE PIX CELULAR: 👇🏼👇🏼');
-        this.logger.info('Mensagem 1 enviada.');
-        await chat.sendStateTyping();
-        await delay(config.delays.digitacao);
-        await this.client.sendMessage(msg.from, '84994082573');
-        this.logger.info('Mensagem 2 enviada.');
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_after_audiofinal2');
     }
 
