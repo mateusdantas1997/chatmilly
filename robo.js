@@ -24,7 +24,6 @@ class Logger {
         const timestamp = new Date().toISOString();
         console.log(`[INFO][${timestamp}] ${mensagem}`);
     }
-
     error(mensagem, erro = '') {
         const timestamp = new Date().toISOString();
         console.error(`[ERROR][${timestamp}] ${mensagem} ${erro}`);
@@ -37,6 +36,19 @@ class GerenciadorEstado {
         this.estadosUsuario = new Map();
         this.mensagensEnviadas = new Map();
         this.conversasFinalizadas = new Set();
+        this.processandoMensagem = new Map(); // Novo: Rastrear se uma mensagem está sendo processada
+    }
+
+    estaProcessando(idUsuario) {
+        return this.processandoMensagem.get(idUsuario) || false;
+    }
+
+    iniciarProcessamento(idUsuario) {
+        this.processandoMensagem.set(idUsuario, true);
+    }
+
+    finalizarProcessamento(idUsuario) {
+        this.processandoMensagem.set(idUsuario, false);
     }
 
     obterEstadoUsuario(idUsuario) {
@@ -99,7 +111,6 @@ class GerenciadorMidia {
                 }
                 await this.enviarMidia(client, msg, caminhoVideo, opcoes);
                 this.logger.info(`Vídeo enviado: ${caminhoVideo}`);
-
                 if (caminhoVideos.indexOf(caminhoVideo) < caminhoVideos.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, delayEntre));
                 }
@@ -221,9 +232,22 @@ class WhatsAppBot {
         try {
             if (!msg.from.endsWith('@c.us')) return;
             const idUsuario = msg.from;
+
+            // Verificar se a conversa já foi finalizada
             if (this.gerenciadorEstado.conversaFinalizada(idUsuario)) {
                 return;
             }
+
+            // Verificar se já está processando uma mensagem para este usuário
+            if (this.gerenciadorEstado.estaProcessando(idUsuario)) {
+                this.logger.info(`Mensagem ignorada para ${idUsuario}: já está sendo processada.`);
+                return;
+            }
+
+            // Marcar que está processando esta mensagem
+            this.gerenciadorEstado.iniciarProcessamento(idUsuario);
+
+            // Processar qualquer tipo de mensagem como resposta válida
             if (!this.gerenciadorEstado.obterEstadoUsuario(idUsuario)) {
                 this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'initial');
                 await this.processarProximoEstagio(idUsuario, msg, 'initial');
@@ -231,6 +255,9 @@ class WhatsAppBot {
                 const estadoAtual = this.gerenciadorEstado.obterEstadoUsuario(idUsuario);
                 await this.processarProximoEstagio(idUsuario, msg, estadoAtual);
             }
+
+            // Finalizar o processamento da mensagem
+            this.gerenciadorEstado.finalizarProcessamento(idUsuario);
         } catch (erro) {
             this.logger.error('Erro no processamento de mensagem:', erro);
         }
@@ -298,13 +325,11 @@ class WhatsAppBot {
 
     async processarEstagioInicial(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'initial');
         await delay(5000);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Oii amor, que bom que me chamou ❤️');
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
@@ -313,28 +338,23 @@ class WhatsAppBot {
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio1.aac', { sendAudioAsVoice: true });
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Você tem interesse amor? 😈🔥');
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_preview');
     }
 
     async processarEstagioPreview(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_preview');
         await delay(5000);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Vou te enviar minhas amostras');
-
         await delay(config.delays.entreVideos);
         const videos = ['./video1.mp4', './video2.mp4'];
         await this.gerenciadorMidia.enviarMultiplosVideos(this.client, msg, videos);
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
@@ -343,13 +363,11 @@ class WhatsAppBot {
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio4.aac', { sendAudioAsVoice: true });
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_promise');
     }
 
     async processarEstagioPromise(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_promise');
         await delay(5000);
         await chat.sendStateTyping();
@@ -363,13 +381,11 @@ class WhatsAppBot {
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Posso te mandar um áudio bem gostoso agora?😍');
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_for_price_response');
     }
 
     async processarEstagioPriceResponse(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_for_price_response');
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_final_promise');
         await this.processarProximoEstagio(idUsuario, msg, 'waiting_final_promise');
@@ -377,13 +393,11 @@ class WhatsAppBot {
 
     async processarEstagioFinalPromise(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_final_promise');
         await delay(5000);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Seu safadinho, vou tirar minha calcinha, espere um pouco');
-
         await delay(20000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
@@ -396,20 +410,16 @@ class WhatsAppBot {
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Estou toda molhadinha, você quer ver?');
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'sending_link');
     }
 
     async processarEstagioSendingLink(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'sending_link');
         await delay(5000);
-
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio8.aac', { sendAudioAsVoice: true });
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
@@ -418,12 +428,10 @@ class WhatsAppBot {
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio9.aac', { sendAudioAsVoice: true });
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Posso te mandar vida?😍');
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_before_audio7');
     }
 
@@ -434,49 +442,39 @@ class WhatsAppBot {
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Vou deixar por um valor bem baixo só para você meu bb');
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Mas só porque eu gostei muito de você viu..🥰');
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Promete que vai comprar amor?');
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_before_audio6');
     }
 
     async processarEstagioBeforeAudio6(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_before_audio6');
         await delay(5000);
-
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Estou com apenas 2 vagas no meu grupinho, você tem sorte de ter falado comigo agora');
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Não me fale que vai me deixar gozar sozinha essa hora porque não vai ter menos de 19 reais, né amor?');
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_before_audiofinal');
     }
 
     async processarRespostaUsuarioBeforeAudiofinal(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_before_audiofinal');
-        const mensagemRecebida = msg.body?.trim().toLowerCase();
 
-        if (!mensagemRecebida) {
-            this.logger.info(`Mensagem inválida recebida do usuário ${idUsuario}`);
-            return;
-        }
+        // Registrar o tipo de mensagem recebida
+        this.logger.info(`Usuário ${idUsuario} respondeu com tipo: ${msg.type}`);
 
+        // Avançar para o próximo estado, independentemente do tipo de mensagem
         this.logger.info(`Usuário ${idUsuario} respondeu. Avançando para o estado waiting_after_audiofinal`);
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_after_audiofinal');
         await this.processarProximoEstagio(idUsuario, msg, 'waiting_after_audiofinal');
@@ -484,48 +482,38 @@ class WhatsAppBot {
 
     async processarEstagioAfterAudiofinal(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_after_audiofinal');
         await delay(5000);
-
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Vou te mandar minha tabelinha bb e você escolhe🥰 ');
-
         await delay(5000);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './foto.jpg', { sendMediaAsPhoto: true });
-
         await delay(5000);
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio12.aac', { sendAudioAsVoice: true });
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, '💦bit.ly/PagarPixx 👈🏼🥰');
         this.logger.info('Link enviado.');
-
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'MINHA CHAVE PIX CELULAR: 👇🏼👇🏼');
         this.logger.info('Mensagem 1 enviada.');
-
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, '84994082573');
         this.logger.info('Mensagem 2 enviada.');
-
         this.gerenciadorEstado.definirEstadoUsuario(idUsuario, 'waiting_after_audiofinal2');
     }
 
     async processarEstagioAfterAudiofinal2(idUsuario, msg, chat) {
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
         this.gerenciadorEstado.marcarMensagemEnviada(idUsuario, 'waiting_after_audiofinal2');
         await delay(30000);
-
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Amor, eu só posso continuar nossa conversa se você comprar um dos meus pacotes');
@@ -533,11 +521,9 @@ class WhatsAppBot {
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio13.aac', { sendAudioAsVoice: true });
-
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Compre meu bb, estou te esperando lá🥰');
-
         this.gerenciadorEstado.finalizarConversa(idUsuario);
         this.gerenciadorEstado.limparEstadoUsuario(idUsuario);
         this.logger.info(`Conversa finalizada para o usuário ${idUsuario}`);
@@ -546,7 +532,6 @@ class WhatsAppBot {
     async tentarReconexao(motivo) {
         let tentativas = 0;
         const maxTentativas = config.limites.tentativasReconexao;
-
         while (tentativas < maxTentativas) {
             try {
                 this.logger.info(`Tentativa de reconexão ${tentativas + 1}/${maxTentativas}`);
@@ -562,7 +547,6 @@ class WhatsAppBot {
                 }
             }
         }
-
         this.logger.error('Máximo de tentativas de reconexão atingido. Reiniciando processo...');
         process.exit(1);
     }
