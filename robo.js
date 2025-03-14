@@ -497,7 +497,7 @@ class WhatsAppBot {
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'MINHA CHAVE PIX CELULAR: 👇🏼👇🏼 ');
         await delay(config.delays.digitacao);
-        await this.client.sendMessage(msg.from, '84994082503');
+        await this.client.sendMessage(msg.from, '84994082573');
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
