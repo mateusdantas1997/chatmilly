@@ -493,6 +493,11 @@ class WhatsAppBot {
         await chat.sendStateRecording();
         await delay(config.delays.gravacao);
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio12.aac', { sendAudioAsVoice: true });
+        await chat.sendStateTyping();
+        await delay(config.delays.digitacao);
+        await this.client.sendMessage(msg.from, 'MINHA CHAVE PIX CELULAR: 👇🏼👇🏼 ');
+        await delay(config.delays.digitacao);
+        await this.client.sendMessage(msg.from, '84994082503');
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
@@ -509,9 +514,6 @@ class WhatsAppBot {
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Amor, eu só posso continuar nossa conversa se você comprar um dos meus pacotes');
         await delay(5000);
-        await chat.sendStateRecording();
-        await delay(config.delays.gravacao);
-        await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio13.aac', { sendAudioAsVoice: true });
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
         await this.client.sendMessage(msg.from, 'Compre meu bb, estou te esperando lá🥰');
