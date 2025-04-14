@@ -495,9 +495,9 @@ class WhatsAppBot {
         await this.gerenciadorMidia.enviarMidia(this.client, msg, './audio12.aac', { sendAudioAsVoice: true });
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
-        await this.client.sendMessage(msg.from, 'MINHA CHAVE PIX CELULAR: 👇🏼👇🏼 ');
+        await this.client.sendMessage(msg.from, 'MINHA CHAVE PIX É MEU EMAIL : 👇🏼👇🏼 ');
         await delay(config.delays.digitacao);
-        await this.client.sendMessage(msg.from, '84994511821');
+        await this.client.sendMessage(msg.from, 'vanessacamilly937@gmail.com');
         await delay(config.delays.digitacao);
         await chat.sendStateTyping();
         await delay(config.delays.digitacao);
